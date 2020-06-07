@@ -3,21 +3,6 @@
 part of 'todo.dart';
 
 // **************************************************************************
-// JsonSerializableGenerator
-// **************************************************************************
-
-Todo _$TodoFromJson(Map<String, dynamic> json) {
-  return Todo(
-    json['description'] as String,
-  )..done = json['done'] as bool;
-}
-
-Map<String, dynamic> _$TodoToJson(Todo instance) => <String, dynamic>{
-      'description': instance.description,
-      'done': instance.done,
-    };
-
-// **************************************************************************
 // StoreGenerator
 // **************************************************************************
 
@@ -28,33 +13,37 @@ mixin _$Todo on _Todo, Store {
 
   @override
   String get description {
-    _$descriptionAtom.context.enforceReadPolicy(_$descriptionAtom);
-    _$descriptionAtom.reportObserved();
+    _$descriptionAtom.reportRead();
     return super.description;
   }
 
   @override
   set description(String value) {
-    _$descriptionAtom.context.conditionallyRunInAction(() {
+    _$descriptionAtom.reportWrite(value, super.description, () {
       super.description = value;
-      _$descriptionAtom.reportChanged();
-    }, _$descriptionAtom, name: '${_$descriptionAtom.name}_set');
+    });
   }
 
   final _$doneAtom = Atom(name: '_Todo.done');
 
   @override
   bool get done {
-    _$doneAtom.context.enforceReadPolicy(_$doneAtom);
-    _$doneAtom.reportObserved();
+    _$doneAtom.reportRead();
     return super.done;
   }
 
   @override
   set done(bool value) {
-    _$doneAtom.context.conditionallyRunInAction(() {
+    _$doneAtom.reportWrite(value, super.done, () {
       super.done = value;
-      _$doneAtom.reportChanged();
-    }, _$doneAtom, name: '${_$doneAtom.name}_set');
+    });
+  }
+
+  @override
+  String toString() {
+    return '''
+description: ${description},
+done: ${done}
+    ''';
   }
 }

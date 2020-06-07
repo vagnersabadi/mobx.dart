@@ -22,20 +22,23 @@ class Observable<T> extends Atom
   /// print('x = ${x.value}'); // read an Observable's value
   /// ```
   factory Observable(T initialValue,
-          {String name,
-          ReactiveContext context,
-          EqualityComparator<T> equals}) =>
+          {String name, ReactiveContext context, EqualityComparer<T> equals}) =>
       Observable._(context ?? mainContext, initialValue,
           name: name, equals: equals);
 
   Observable._(ReactiveContext context, this._value, {String name, this.equals})
       : _interceptors = Interceptors(context),
         _listeners = Listeners(context),
-        super._(context, name: name ?? context.nameFor('Observable'));
+        super._(context, name: name ?? context.nameFor('Observable')) {
+    if (_context.isSpyEnabled) {
+      _context.spyReport(ObservableValueSpyEvent(this,
+          newValue: _value, name: this.name, isEnd: true));
+    }
+  }
 
   final Interceptors<T> _interceptors;
   final Listeners<ChangeNotification<T>> _listeners;
-  final EqualityComparator<T> equals;
+  final EqualityComparer<T> equals;
 
   T _value;
 
@@ -57,6 +60,13 @@ class Observable<T> extends Atom
       return;
     }
 
+    final notifySpy = _context.isSpyEnabled;
+
+    if (notifySpy) {
+      _context.spyReport(ObservableValueSpyEvent(this,
+          newValue: newValue, oldValue: oldValue, name: name));
+    }
+
     _value = newValue;
 
     reportChanged();
@@ -68,6 +78,10 @@ class Observable<T> extends Atom
           type: OperationType.update,
           object: this);
       _listeners.notifyListeners(change);
+    }
+
+    if (notifySpy) {
+      _context.spyReport(EndedSpyEvent(type: 'observable', name: name));
     }
   }
 

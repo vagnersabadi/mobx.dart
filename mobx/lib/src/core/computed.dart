@@ -12,6 +12,9 @@ class Computed<T> extends Atom implements Derivation, ObservableValue<T> {
   ///
   /// A computed's value is read with the `value` property.
   ///
+  /// It is possible to override equality comparison (when deciding whether to notify observers)
+  /// by providing an [equals] comparator.
+  ///
   /// ```
   /// var x = Observable(10);
   /// var y = Observable(10);
@@ -28,11 +31,14 @@ class Computed<T> extends Atom implements Derivation, ObservableValue<T> {
   /// A computed value is _cached_ and it recomputes only when the dependent observables actually
   /// change. This makes them fast and you are free to use them throughout your application. Internally
   /// MobX uses a 2-phase change propagation that ensures no unnecessary computations are performed.
-  factory Computed(T Function() fn, {String name, ReactiveContext context}) =>
-      Computed._(context ?? mainContext, fn, name: name);
+  factory Computed(T Function() fn,
+          {String name, ReactiveContext context, EqualityComparer<T> equals}) =>
+      Computed._(context ?? mainContext, fn, name: name, equals: equals);
 
-  Computed._(ReactiveContext context, this._fn, {String name})
+  Computed._(ReactiveContext context, this._fn, {String name, this.equals})
       : super._(context, name: name ?? context.nameFor('Computed'));
+
+  final EqualityComparer<T> equals;
 
   @override
   MobXCaughtException _errorValue;
@@ -60,7 +66,8 @@ class Computed<T> extends Atom implements Derivation, ObservableValue<T> {
   @override
   T get value {
     if (_isComputing) {
-      throw MobXException('Cycle detected in computation $name: $_fn');
+      throw MobXCyclicReactionException(
+          'Cycle detected in computation $name: $_fn');
     }
 
     if (!_context.isWithinBatch && _observers.isEmpty) {
@@ -99,8 +106,8 @@ class Computed<T> extends Atom implements Derivation, ObservableValue<T> {
         try {
           value = _fn();
           _errorValue = null;
-        } on Object catch (e) {
-          _errorValue = MobXCaughtException(e);
+        } on Object catch (e, s) {
+          _errorValue = MobXCaughtException(e, stackTrace: s);
         }
       }
     }
@@ -123,6 +130,10 @@ class Computed<T> extends Atom implements Derivation, ObservableValue<T> {
   }
 
   bool _trackAndCompute() {
+    if (_context.isSpyEnabled) {
+      _context.spyReport(ComputedValueSpyEvent(this, name: name));
+    }
+
     final oldValue = _value;
     final wasSuspended = _dependenciesState == DerivationState.notTracking;
 
@@ -139,26 +150,27 @@ class Computed<T> extends Atom implements Derivation, ObservableValue<T> {
     return changed;
   }
 
-  bool _isEqual(T x, T y) => x == y;
+  bool _isEqual(T x, T y) => equals == null ? x == y : equals(x, y);
 
   Function observe(void Function(ChangeNotification<T>) handler,
-      {bool fireImmediately}) {
-    var firstTime = true;
+      {@deprecated bool fireImmediately}) {
     T prevValue;
+
+    void notifyChange() {
+      _context.untracked(() {
+        handler(ChangeNotification(
+            type: OperationType.update,
+            object: this,
+            oldValue: prevValue,
+            newValue: value));
+      });
+    }
 
     return autorun((_) {
       final newValue = value;
-      if (firstTime == true || fireImmediately == true) {
-        _context.untracked(() {
-          handler(ChangeNotification(
-              type: OperationType.update,
-              object: this,
-              oldValue: prevValue,
-              newValue: newValue));
-        });
-      }
 
-      firstTime = false;
+      notifyChange();
+
       prevValue = newValue;
     }, context: _context);
   }

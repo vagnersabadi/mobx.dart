@@ -1,3 +1,54 @@
+## 1.1.0
+
+- Added the ability to **spy** on changes happening inside MobX. You can now setup a `spy()` to see all these changes. See [this](https://github.com/mobxjs/mobx.dart/blob/5095e966fe591d223c7730579de2f4778a7ff465/mobx_examples/lib/main.dart#L26) for an example. The changes in `mobx_codegen` help in the reporting of updates to observables.
+- Simplified the handling of tests and coverage. We are no longer dependent on the `test_coverage` package, which was causing issues on CI.
+
+## 1.0.3
+
+- Upgrading `mobx` to `1.1.0`
+
+## 1.0.2
+
+- Added automatic generation of `toString` method with `@StoreConfig` annotation
+
+Thanks to [@hawkbee1](https://github.com/hawkbee1)
+
+## 1.0.0 - 1.0.1
+
+- Ready for prime time!
+- Fixing version resolution
+
+## 0.4.2
+
+- Upgraded the `build_resolvers` dependency to 1.3.2, which fixes issues with certain
+  versions of Dart being unable to resolve `dart:ui` types.
+
+## 0.4.1+2
+
+- Going back to original `test_coverage` package
+
+## 0.4.1+1
+
+- README updates
+- Switching to [Github Actions](https://github.com/mobxjs/mobx.dart/actions) for all builds and publishing
+
+## 0.4.1
+
+There were a number of bugs with the previous implementation of the `LibraryScopedNameFinder`. This resolves them, as well as ensures that a single code path is followed whether or not the analyzed source code contains named imports, reducing the potential for future bugs.
+
+The following bugs have been corrected when using named imports:
+
+- Missing type arguments on classes
+- Missing type arguments on function typedefs
+- Missing prefixes from imported typedefs
+- Missing prefixes from implicit type argument bounds
+
+## 0.4.0 - 0.4.0+1
+
+- Upgraded our `analyzer` dependency's minimum version to **0.38.5** in order to
+  workaround a bug where collection types would resolve to dynamic
+- Updated `pubspec.yaml` to not include the reference to the `@store` annotation. It has been removed.
+
 ## 0.3.13
 
 - Fixes the extraction of generic return-types which have nested generic type arguments, eg: `Future<List<User>>`

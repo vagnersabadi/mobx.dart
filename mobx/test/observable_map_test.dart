@@ -7,7 +7,7 @@ import 'shared_mocks.dart';
 import 'util.dart';
 
 void main() {
-  turnOffWritePolicy();
+  testSetup();
 
   group('MapKeysIterable', () {
     test('length reports observed', () {
@@ -28,6 +28,16 @@ void main() {
   });
 
   group('ObservableMap', () {
+    test('generates a name if not given', () {
+      final map = ObservableMap.of({});
+      expect(map.name, matches(RegExp(r'ObservableMap\<.*\>@')));
+    });
+
+    test('uses the name if given', () {
+      final map = ObservableMap.of({}, name: 'test');
+      expect(map.name, equals('test'));
+    });
+
     test('Observing a map key works', () {
       final map = ObservableMap.of({'a': 1});
 
@@ -208,6 +218,13 @@ void main() {
       expect(changes[1].type, equals(OperationType.add));
       expect(changes[1].key, equals('b'));
       expect(changes[1].newValue, equals(1));
+    });
+
+    test('works when adding a null value', () {
+      final map = ObservableMap();
+      map['a'] = null;
+
+      expect(map.containsKey('a'), isTrue);
     });
   });
 }

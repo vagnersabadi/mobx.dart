@@ -8,7 +8,7 @@ import 'shared_mocks.dart';
 import 'util.dart';
 
 void main() {
-  turnOffWritePolicy();
+  testSetup();
 
   group('autorun()', () {
     test('basics work', () {
@@ -99,7 +99,7 @@ void main() {
       dispose();
     });
 
-    test('with pre-mature disposal in predicate', () {
+    test('with pre-mature disposal in tracking function', () {
       final x = Observable(10);
 
       final d = autorun((reaction) {

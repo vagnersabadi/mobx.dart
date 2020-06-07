@@ -30,7 +30,7 @@ library mobx;
 
 export 'package:mobx/src/api/action.dart';
 export 'package:mobx/src/api/annotations.dart'
-    show action, computed, observable, store;
+    show action, computed, observable, StoreConfig;
 export 'package:mobx/src/api/async.dart'
     show
         ObservableFuture,
@@ -61,7 +61,9 @@ export 'package:mobx/src/core.dart'
         NotificationHandlers,
         ReactionImpl,
         DerivationState;
+
+export 'package:mobx/src/core/atom_extensions.dart';
 export 'package:mobx/src/api/extensions.dart';
 
 /// The current version as per `pubspec.yaml`
-const version = '0.4.0+1';
+const version = '1.0.1';

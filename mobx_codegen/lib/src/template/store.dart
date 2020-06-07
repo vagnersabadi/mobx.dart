@@ -32,7 +32,9 @@ abstract class StoreTemplate {
   final Rows<AsyncActionTemplate> asyncActions = Rows();
   final Rows<ObservableFutureTemplate> observableFutures = Rows();
   final Rows<ObservableStreamTemplate> observableStreams = Rows();
+  final List<String> toStringList = [];
 
+  bool generateToString = false;
   String _actionControllerName;
   String get actionControllerName =>
       _actionControllerName ??= '_\$${parentTypeName}ActionController';
@@ -40,6 +42,34 @@ abstract class StoreTemplate {
   String get actionControllerField => actions.isEmpty
       ? ''
       : "final $actionControllerName = ActionController(name: '$parentTypeName');";
+
+  String get toStringMethod {
+    if (!generateToString) {
+      return '';
+    }
+
+    final publicObservablesList = observables.templates
+        .where((element) => !element.isPrivate)
+        .map((current) => '${current.name}: \${${current.name}}');
+
+    final publicComputedsList = computeds.templates
+        .where((element) => !element.isPrivate)
+        .map((current) => '${current.name}: \${${current.name}}');
+
+    final allStrings = toStringList
+      ..addAll(publicObservablesList)
+      ..addAll(publicComputedsList);
+
+    // The indents have been kept to ensure each field comes on a separate line without any tabs/spaces
+    return '''
+  @override
+  String toString() {
+    return \'\'\'
+${allStrings.join(',\n')}
+    \'\'\';
+  }
+  ''';
+  }
 
   String get storeBody => '''
   $computeds
@@ -54,8 +84,8 @@ abstract class StoreTemplate {
 
   $actionControllerField
 
-  $actions''';
+  $actions
 
-  @override
-  String toString();
+  $toStringMethod
+  ''';
 }

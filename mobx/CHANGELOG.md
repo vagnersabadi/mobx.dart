@@ -1,3 +1,45 @@
+## 1.2.1
+
+- Improved `observe()` API for `ObservableList`. We now get better change events with accurate details about what has changed. Thanks to
+  @darkstarx for the PR (#490)
+
+## 1.2.0
+
+- Added the ability to **spy** on changes happening inside MobX. You can now setup a `spy()` to see all these changes. See [this](https://github.com/mobxjs/mobx.dart/blob/5095e966fe591d223c7730579de2f4778a7ff465/mobx_examples/lib/main.dart#L26) for an example.
+- Simplified the handling of tests and coverage. We are no longer dependent on the `test_coverage` package, which was causing issues on CI.
+- A custom `EqualityComparer<T>` can now be specified for `Computed<T>`. This can be passed in with the `equals` parameter in the constructor.
+- Several documentation updates from various contributors.
+
+## 1.1.0 - 1.1.1
+
+- All exceptions caught inside MobX reactions are now reported as `MobXCaughtException`. Previously they were reported as-is and that caused issues in `flutter_mobx`, where the stack traces were not visible. The stack trace is now being captured as part of the exception, so `flutter_mobx` can show the complete trace. This helps a lot during debugging.
+- `MobXException` now extends from `Error` to capture the stack trace. This is done because Dart only captures stack traces automatically for `Error` instances.
+- Bringing test coverage back to 98% in `1.1.1`
+
+## 1.0.2 - 1.0.2+2
+
+- Added `@StoreConfig` annotation ([@hawkbee1](https://github.com/hawkbee1))
+- Fixed to link to pt-BR translation on github
+- Fixed anchor link inside README.md
+
+## 1.0.1
+
+- Fix for ObservableMap not adding null values (#417), thanks to @Vardiak
+
+## 1.0.0
+
+- Ready for prime time!
+
+## 0.4.0+3 - 0.4.0+4
+
+- Going back to original `test_coverage` package
+- Some cleanups in the tests
+
+## 0.4.0+2
+
+- README updates
+- Switching to [Github Actions](https://github.com/mobxjs/mobx.dart/actions) for all builds and publishing
+
 ## 0.4.0 - 0.4.0+1
 
 - Removing the deprecated `authors` field from `pubspec.yaml`

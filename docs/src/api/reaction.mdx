@@ -16,7 +16,7 @@ The **MobX triad** is completed when we add **Reactions** into the mix. Having r
 >
 > Technically, a computed is also a reaction, aka **Derivation**, as it depends on other observables or computeds. The only difference between a regular `Reaction` and `Computed` is that the former does not produce any value. Computeds are mostly read-only observables that derive their value from other observables.
 
-Reactions, or Derivations come in few flavors: `autorun`, `reaction`, `when` and of course the Flutter Widget: `Observer`. All of these variations take a function that is tracked for any observables. When the tracked observables change, the function is re-executed. This simple behavior is the defining characteristic of a reaction. Note that there is no explicit subscription or wiring needed. Reactions also return a _disposer-function_ (`ReactionDisposer`) that can be invoked to pre-maturely dispose a rection.
+Reactions, or Derivations come in few flavors: `autorun`, `reaction`, `when` and of course the Flutter Widget: `Observer`. All of these variations take a function that is tracked for any observables. When the tracked observables change, the function is re-executed. This simple behavior is the defining characteristic of a reaction. Note that there is no explicit subscription or wiring needed. Reactions also return a _disposer-function_ (`ReactionDisposer`) that can be invoked to pre-maturely dispose a reaction.
 
 ## autorun
 
@@ -47,10 +47,10 @@ dispose();
 
 ## reaction
 
-### `ReactionDisposer reaction<T>(T Function(Reaction) predicate, void Function(T) effect)`
+### `ReactionDisposer reaction<T>(T Function(Reaction) fn, void Function(T) effect)`
 
-Monitors the observables used inside the `predicate()` function and runs the `effect()` when
-the predicate returns a different value. Only the observables inside `predicate()` are tracked.
+Monitors the observables used inside the `fn()` tracking function and runs the `effect()` when
+the tracking function returns a different value. Only the observables inside `fn()` are tracked.
 
 ```dart
 import 'package:mobx/mobx.dart';
@@ -112,6 +112,16 @@ void waitForCompletion() async {
 One of the most visual reactions in the app is the UI. The **Observer** widget (which is part of the
 [![pub package for flutter_mobx](https://img.shields.io/pub/v/flutter_mobx.svg?label=flutter_mobx&color=blue)](https://pub.dartlang.org/packages/flutter_mobx)
 package), provides a granular observer of the observables used in its `builder` function. Whenever these observables change, `Observer` rebuilds and renders.
+
+> ### Immediate context for `builder`
+>
+> The key thing to note is that the `builder` function will only track the observables in its immediate execution context. If an observable
+> is being used in a nested function, it will not be tracked. Make sure to dereference (a.k.a. read) an observable in the immediate
+> execution context. If no observables are found when running the `builder` function, it will warn you on the console.
+>
+> This is one of the most common gotchas when using MobX. Just because you have nested functions inside a `builder`, which are reading
+> an observable, it does not actually track the observable. It can appear deceiving but the fact is, the observable was not in the
+> **immediate execution context**. Be watchful for this scenario, especially when your `Observer`-wrapped `Widgets` are not updating properly.
 
 Below is the _Counter_ example in its entirety.
 

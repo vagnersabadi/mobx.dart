@@ -3,10 +3,13 @@ import 'package:mockito/mockito.dart';
 import 'package:test/test.dart';
 
 import 'shared_mocks.dart';
+import 'util.dart';
 
 class MockDerivation extends Mock implements Derivation {}
 
 void main() {
+  testSetup();
+
   group('ActionController', () {
     test('can be created with both null context and name', () {
       ActionController();
@@ -31,7 +34,10 @@ void main() {
       when(context.startUntracked()).thenReturn(prevDerivation);
 
       final runInfo = ActionRunInfo(
-          prevDerivation: prevDerivation, prevAllowStateChanges: false);
+          name: 'test',
+          prevDerivation: prevDerivation,
+          prevAllowStateChanges: false,
+          startTime: DateTime.now());
 
       ActionController(context: context)
         ..startAction()

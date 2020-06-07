@@ -2,6 +2,7 @@ library generator_sample;
 
 import 'package:meta/meta.dart';
 import 'package:mobx/mobx.dart';
+//import 'package:flutter/material.dart';
 
 part 'generator_sample.g.dart';
 
@@ -9,6 +10,7 @@ typedef VoidCallback = void Function();
 
 class User = UserBase with _$User;
 
+@StoreConfig(hasToString: false)
 abstract class UserBase with Store {
   UserBase(this.id);
 
@@ -35,6 +37,9 @@ abstract class UserBase with Store {
 
   @observable
   List<User> _testUsers = <User>[];
+
+//  @observable
+//  List<Color> backColor = List.generate(60, (i) => Colors.transparent);
 
   @computed
   String get fullName => '$firstName $middleName $lastName';

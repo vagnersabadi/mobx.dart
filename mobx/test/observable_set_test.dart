@@ -7,9 +7,19 @@ import 'shared_mocks.dart';
 import 'util.dart';
 
 void main() {
-  turnOffWritePolicy();
+  testSetup();
 
   group('ObservableSet', () {
+    test('generates a name if not given', () {
+      final set = ObservableSet<int>.of([]);
+      expect(set.name, matches(RegExp(r'ObservableSet\<.*\>@')));
+    });
+
+    test('uses the name if given', () {
+      final set = ObservableSet<int>.of([], name: 'test');
+      expect(set.name, equals('test'));
+    });
+
     test('linkedHashSetFrom creates a set that iterates at insertion order',
         () {
       final oset = ObservableSet<int>.linkedHashSetFrom([]);

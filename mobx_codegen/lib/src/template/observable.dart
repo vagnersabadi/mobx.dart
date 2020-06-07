@@ -5,6 +5,7 @@ class ObservableTemplate {
   String atomName;
   String type;
   String name;
+  bool isPrivate;
 
   @override
   String toString() => """
@@ -12,16 +13,14 @@ class ObservableTemplate {
 
   @override
   $type get $name {
-    $atomName.context.enforceReadPolicy($atomName);
-    $atomName.reportObserved();
+    $atomName.reportRead();
     return super.$name;
   }
 
   @override
   set $name($type value) {
-    $atomName.context.conditionallyRunInAction(() {
+    $atomName.reportWrite(value, super.$name, () {
       super.$name = value;
-      $atomName.reportChanged();
-    }, $atomName, name: '\${$atomName.name}_set');
+    });
   }""";
 }
